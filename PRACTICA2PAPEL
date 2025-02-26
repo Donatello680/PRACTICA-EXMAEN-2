@@ -1,1 +1,167 @@
 2P
+import javax.swing.JOptionPane;
+
+// Clase que representa a un estudiante
+class Estudiante {
+    private String nombre;
+    private String cedula;
+    private String codigo;
+    private String grupo;
+    private boolean beca;
+    private String institucion;
+
+    // Constructor de la clase Estudiante
+    public Estudiante(String nombre, String cedula, String codigo, String grupo, boolean beca, String institucion) {
+        this.nombre = nombre;
+        this.cedula = cedula;
+        this.codigo = codigo;
+        this.grupo = grupo;
+        this.beca = beca;
+        this.institucion = institucion;
+    }
+
+    // Getter para obtener el nombre del estudiante
+    public String getNombre() { return nombre; }
+    
+    // Getter para obtener el código del estudiante
+    public String getCodigo() { return codigo; }
+    
+    // Getter para obtener el grupo del estudiante
+    public String getGrupo() { return grupo; }
+    
+    // Getter para verificar si el estudiante tiene beca
+    public boolean tieneBeca() { return beca; }
+}
+
+// Clase que representa una actividad realizada por el estudiante
+class Actividad {
+    private String nombre;
+    private String codigo;
+    private int calificacion;
+    private int semana;
+    private boolean entregadaATiempo;
+    private boolean enGrupo;
+    private boolean revisadaPorProfesor;
+
+    // Constructor de la clase Actividad
+    public Actividad(String nombre, String codigo, int calificacion, int semana, boolean entregadaATiempo, boolean enGrupo, boolean revisadaPorProfesor) {
+        this.nombre = nombre;
+        this.codigo = codigo;
+        this.calificacion = calificacion;
+        this.semana = semana;
+        this.entregadaATiempo = entregadaATiempo;
+        this.enGrupo = enGrupo;
+        this.revisadaPorProfesor = revisadaPorProfesor;
+    }
+
+    // Método para calcular los puntos de participación de la actividad
+    public int calcularPuntosParticipacion() {
+        int puntos = 0;
+        if (entregadaATiempo) puntos += 1;
+        if (enGrupo) puntos += 2;
+        if (revisadaPorProfesor) puntos += 1;
+        if (calificacion >= 90) puntos += 2;
+        if (calificacion < 70) puntos -= 1;
+        return puntos;
+    }
+
+    // Getter para obtener la calificación de la actividad
+    public int getCalificacion() { return calificacion; }
+    
+    // Getter para verificar si la actividad fue entregada a tiempo
+    public boolean isEntregadaATiempo() { return entregadaATiempo; }
+}
+
+// Clase principal que gestiona el sistema de calificaciones
+public class SistemaCalificaciones {
+    public static void main(String[] args) {
+        // Solicitud de datos del estudiante
+        String nombre = JOptionPane.showInputDialog("Ingrese el nombre del estudiante:");
+        String cedula = JOptionPane.showInputDialog("Ingrese la cédula:");
+        String codigo = JOptionPane.showInputDialog("Ingrese el código del estudiante:");
+        String grupo = JOptionPane.showInputDialog("Ingrese el grupo:");
+        String institucion = JOptionPane.showInputDialog("Ingrese el nombre de la institución:");
+        boolean beca;
+        if (JOptionPane.showInputDialog("¿Tiene beca? (Sí/No)").compareToIgnoreCase("Sí") == 0) {
+            beca = true;
+        } else {
+            beca = false;
+        }
+
+        // Creación del objeto Estudiante
+        Estudiante estudiante = new Estudiante(nombre, cedula, codigo, grupo, beca, institucion);
+        
+        int totalCalificaciones = 0;
+        int totalPuntos = 0;
+        int actividadesEntregadasATiempo = 0;
+        int cantidadActividades = 0;
+
+        // Bucle para registrar actividades
+        while (true) {
+            String continuar = JOptionPane.showInputDialog("¿Desea registrar una actividad? (Sí/No)");
+            if (continuar.compareToIgnoreCase("Sí") != 0) {
+                break;
+            }
+
+            // Solicitud de datos de la actividad
+            String nombreAct = JOptionPane.showInputDialog("Nombre de la actividad:");
+            String codigoAct = JOptionPane.showInputDialog("Código de la actividad:");
+            int calificacion = Integer.parseInt(JOptionPane.showInputDialog("Calificación (0-100):"));
+            int semana = Integer.parseInt(JOptionPane.showInputDialog("Semana (1-16):"));
+            boolean entregada;
+            if (JOptionPane.showInputDialog("¿Fue entregada a tiempo? (Sí/No)").compareToIgnoreCase("Sí") == 0) {
+                entregada = true;
+            } else {
+                entregada = false;
+            }
+            boolean enGrupo;
+            if (JOptionPane.showInputDialog("¿Fue realizada en grupo? (Sí/No)").compareToIgnoreCase("Sí") == 0) {
+                enGrupo = true;
+            } else {
+                enGrupo = false;
+            }
+            boolean revisada;
+            if (JOptionPane.showInputDialog("¿Fue revisada por el profesor? (Sí/No)").compareToIgnoreCase("Sí") == 0) {
+                revisada = true;
+            } else {
+                revisada = false;
+            }
+            
+            // Creación del objeto Actividad y acumulación de datos
+            Actividad actividad = new Actividad(nombreAct, codigoAct, calificacion, semana, entregada, enGrupo, revisada);
+            totalCalificaciones += actividad.getCalificacion();
+            totalPuntos += actividad.calcularPuntosParticipacion();
+            if (actividad.isEntregadaATiempo()) actividadesEntregadasATiempo++;
+            cantidadActividades++;
+        }
+
+        // Cálculo del promedio
+        double promedio;
+        if (cantidadActividades > 0) {
+            promedio = (double) totalCalificaciones / cantidadActividades;
+        } else {
+            promedio = 0;
+        }
+        boolean bonoExtra = actividadesEntregadasATiempo > 5 || promedio > 85;
+        if (bonoExtra) totalPuntos += 10;
+
+        // Creación del mensaje de salida
+        String mensaje = "El Estudiante " + estudiante.getNombre() + " código: " + estudiante.getCodigo() +
+                "\nObtuvo un promedio final de " + promedio +
+                "\nPuntos de participación obtenidos: " + totalPuntos + "\n";
+        if (bonoExtra) {
+            mensaje += "El estudiante logró el objetivo de obtener el BONO EXTRA.\n";
+        } else {
+            mensaje += "No obtuvo bono extra.\n";
+        }
+        if (estudiante.tieneBeca()) {
+            mensaje += "El estudiante cuenta con beca.\n";
+        } else {
+            mensaje += "El estudiante no tiene beca.\n";
+        }
+        mensaje += "Grupo: " + estudiante.getGrupo();
+        
+        // Mostrar resultados en pantalla
+        JOptionPane.showMessageDialog(null, mensaje);
+    }
+}
